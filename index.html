@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>포트나이트 실시간 서버 상태 & 패치노트 | Fortnite Status Live</title>
+  
+  <!-- Meta & Favicon -->
+  <meta name="description" content="포트나이트 실시간 서버 상태, 점검 및 다운 해제 예상 시간 카운트다운, 최신 패치노트와 업데이트 정보를 가장 빠르게 확인하세요.">
+  <link rel="icon" type="image/png" href="https://cdn2.unrealengine.com/fn-f-logo-300x300-300x300-843825997.png">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700;800&family=Outfit:wght@500;600;700;800;900&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            fn: {
+              dark: '#0b0e14',
+              card: '#121824',
+              border: '#1e293b',
+              blue: '#0088ff',
+              cyan: '#06b6d4',
+              yellow: '#facc15',
+              green: '#10b981',
+              red: '#ef4444',
+              purple: '#8b5cf6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- External Stylesheet in Root -->
+  <link rel="stylesheet" href="style.css?v=3.5.0">
+</head>
+<body class="bg-fn-dark text-slate-100 min-h-screen bg-grid-pattern relative flex flex-col justify-between selection:bg-blue-600 selection:text-white">
+
+  <!-- Background Ambient Glow -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[450px] bg-blue-600/10 blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed top-1/3 right-0 w-[500px] h-[500px] bg-purple-600/5 blur-[150px] pointer-events-none -z-10"></div>
+
+  <!-- Header / Navigation Bar -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center font-game font-bold text-white shadow-lg shadow-blue-500/20">
+          FN
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-heading font-extrabold text-lg sm:text-xl tracking-tight text-white">FORTNITE</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">STATUS LIVE</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">실시간 서버 상태 및 공식 패치노트 피드</p>
+        </div>
+      </div>
+
+      <!-- Live Network & Actions Bar -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        
+        <!-- Live Status Pill -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs">
+          <span id="header-status-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+          <span id="header-status-text" class="font-semibold text-emerald-400">서버 정상</span>
+          <span class="text-slate-600 hidden md:inline">|</span>
+          <span id="ping-display" class="text-slate-400 hidden md:inline font-mono">28ms</span>
+        </div>
+
+        <!-- Notification Toggle Button -->
+        <button id="notify-toggle-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700 text-slate-300 text-xs font-medium hover:bg-slate-700/50 transition-colors">
+          <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+          <span id="notify-btn-text" class="hidden sm:inline">서버 오픈 알림 받기</span>
+        </button>
+
+        <!-- Refresh Button -->
+        <button id="refresh-btn" title="지금 새로고침" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span class="hidden md:inline">새로고침</span>
+          <span id="auto-refresh-countdown" class="text-[10px] opacity-80 font-mono">30s</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 flex-1 w-full">
+
+    <!-- 1. TOP SECTION: Latest Patch & Client Version Banner -->
+    <section class="glass-panel rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-4">
+          <div class="p-3.5 rounded-xl bg-blue-600/10 border border-blue-500/20 text-blue-400 shrink-0">
+            <i data-lucide="package" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider">현재 공식 클라이언트 패치 버전</h2>
+              <span id="current-version-badge" class="px-2.5 py-0.5 rounded-md bg-blue-600 text-white font-heading font-extrabold text-xs tracking-wider">v32.00</span>
+            </div>
+            <p id="build-string-text" class="text-xs font-mono text-slate-400 mt-1 break-all">++Fortnite+Release-32.00-CL-37989301-Windows</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 text-xs text-slate-400 md:border-l md:border-slate-800 md:pl-6">
+          <div>
+            <span class="block text-slate-500">최신 빌드 배포 일시</span>
+            <span id="patch-date-text" class="font-medium text-slate-200 mt-0.5 block">2026년 9월 18일 오전 03:27 (KST)</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. HERO SECTION: Server Status & Countdown Engine -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      
+      <!-- Primary Status Card -->
+      <div id="status-hero-card" class="lg:col-span-6 glass-panel rounded-2xl p-6 sm:p-8 border border-emerald-500/40 relative overflow-hidden flex flex-col justify-between shadow-2xl transition-all duration-300">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div id="status-badge" class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30">
+              <span class="flex h-2 w-2 rounded-full bg-emerald-400 mr-2"></span>
+              <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">ALL SERVERS ONLINE</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+              <span>마지막 확인: <strong id="last-update-display" class="text-slate-200">방금 전</strong></span>
+            </div>
+          </div>
+
+          <div>
+            <h1 id="status-title" class="font-heading font-extrabold text-2xl sm:text-3xl text-white tracking-tight leading-snug">
+              포트나이트 서버가 원활하게 가동 중입니다
+            </h1>
+            <p id="status-description" class="mt-2 text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl">
+              현재 진행 중이거나 보고된 서버 장애가 없으며 모든 매치메이킹 및 게임 서비스가 정상 작동하고 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Status Metrics -->
+        <div class="mt-8 pt-6 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <div class="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 mb-1">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+              매치메이킹
+            </div>
+            <div class="text-sm font-bold text-white">정상 가동</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <div class="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 mb-1">
+              <i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-400"></i>
+              로그인 / 인증
+            </div>
+            <div class="text-sm font-bold text-white">원활</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 col-span-2 sm:col-span-1">
+            <div class="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 mb-1">
+              <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-yellow-400"></i>
+              아이템 상점
+            </div>
+            <div class="text-sm font-bold text-white">정상 오픈</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Card: Downtime, Release Countdown & Detailed Maintenance Work -->
+      <div id="countdown-box" class="lg:col-span-6 glass-panel rounded-2xl p-6 sm:p-8 border border-slate-800 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="timer" class="w-4 h-4 text-blue-400"></i>
+              <span id="countdown-label" class="text-xs font-bold text-slate-300 uppercase tracking-wider">서버 다운 해제(오픈) 타이머</span>
+            </div>
+            <span class="text-[11px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">LIVE COUNTDOWN</span>
+          </div>
+
+          <!-- Digital Timer UI -->
+          <div class="grid grid-cols-3 gap-3 my-3">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-center">
+              <span id="timer-hours" class="block font-heading font-black text-3xl sm:text-4xl text-white font-mono">--</span>
+              <span class="text-[11px] text-slate-500 font-semibold tracking-wider uppercase mt-1 block">HOURS</span>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-center">
+              <span id="timer-minutes" class="block font-heading font-black text-3xl sm:text-4xl text-white font-mono">--</span>
+              <span class="text-[11px] text-slate-500 font-semibold tracking-wider uppercase mt-1 block">MINUTES</span>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 text-center">
+              <span id="timer-seconds" class="block font-heading font-black text-3xl sm:text-4xl text-blue-400 font-mono">--</span>
+              <span class="text-[11px] text-slate-500 font-semibold tracking-wider uppercase mt-1 block">SECONDS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Maintenance Scale & Detailed Work Box -->
+        <div class="my-3 p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="wrench" class="w-3.5 h-3.5 text-blue-400"></i>
+              점검 내용 및 작업 상세
+            </span>
+            <span id="maintenance-scale-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-emerald-950/80 text-emerald-300 border-emerald-500/40">
+              점검 없음 (정상 가동)
+            </span>
+          </div>
+
+          <div>
+            <div id="maintenance-type-title" class="text-xs sm:text-sm font-bold text-white">
+              현재 모든 서비스가 온라인 상태입니다
+            </div>
+            <div id="maintenance-impact-text" class="text-[11px] text-slate-400 mt-0.5">
+              포트나이트 정기 점검은 통상 화요일/목요일 오후 5시(KST) 전후 진행되며 보통 2~3시간 소요됩니다.
+            </div>
+          </div>
+
+          <!-- Dynamic Work Checklist Bullets -->
+          <ul id="maintenance-details-list" class="space-y-1.5 pt-2 border-t border-slate-800/80">
+            <li class="flex items-start gap-2 text-[11px] text-slate-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 shrink-0"></span>
+              <span>배틀로얄 솔로/듀오/스쿼드 및 랭크 매치 정상</span>
+            </li>
+            <li class="flex items-start gap-2 text-[11px] text-slate-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 shrink-0"></span>
+              <span>아이템 상점 및 배틀패스 구매/이용 가능</span>
+            </li>
+            <li class="flex items-start gap-2 text-[11px] text-slate-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 shrink-0"></span>
+              <span>파티 음성 채팅 및 크로스플레이 정상 연동</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Schedule Info Lines -->
+        <div class="pt-3 border-t border-slate-800/80 space-y-1.5 text-xs">
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-500"></i>
+              점검 시작
+            </span>
+            <span id="time-info-start" class="font-medium text-slate-200">-</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-400">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-blue-400"></i>
+              해제 예상
+            </span>
+            <span id="time-info-end" class="font-medium text-blue-300">-</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 3. SECTION: Official In-game Patch Notes & News -->
+    <section class="space-y-4">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800">
+        <div>
+          <h2 class="font-heading font-bold text-xl sm:text-2xl text-white tracking-tight flex items-center gap-2">
+            <i data-lucide="newspaper" class="w-5 h-5 text-blue-400"></i>
+            업데이트 패치 노트 & 인게임 공지
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-0.5">최신 패치에서 추가되거나 변경된 주요 콘텐츠 목록입니다. 카드를 클릭하면 상세 내용을 확인하고 공식 사이트로 이동할 수 있습니다.</p>
+        </div>
+
+        <!-- Mode Tabs -->
+        <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+          <button id="tab-br" class="px-3 py-1.5 rounded-lg font-semibold bg-blue-600 text-white transition-all">배틀로얄</button>
+          <button id="tab-stw" class="px-3 py-1.5 rounded-lg font-semibold bg-slate-800/60 text-slate-400 hover:bg-slate-700/50 transition-all">세이브 더 월드</button>
+          <button id="tab-creative" class="px-3 py-1.5 rounded-lg font-semibold bg-slate-800/60 text-slate-400 hover:bg-slate-700/50 transition-all">포크리 / 언리얼</button>
+        </div>
+      </div>
+
+      <!-- News Cards Grid -->
+      <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+      <!-- Empty State -->
+      <div id="news-empty-state" class="hidden p-12 text-center rounded-2xl glass-panel border border-slate-800">
+        <i data-lucide="inbox" class="w-10 h-10 text-slate-600 mx-auto mb-3"></i>
+        <p class="text-sm font-medium text-slate-400">해당 모드의 새로운 패치 소식이 없습니다.</p>
+      </div>
+
+    </section>
+
+    <!-- 4. SECTION: Server Component Health & Current Island Map -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Component Health Grid -->
+      <div class="lg:col-span-7 glass-panel rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <h3 class="font-heading font-bold text-base sm:text-lg text-white flex items-center gap-2">
+            <i data-lucide="server" class="w-4 h-4 text-blue-400"></i>
+            세부 서비스 상태
+          </h3>
+          <span class="text-xs text-slate-400">에픽게임즈 인프라 공식 상태</span>
+        </div>
+        <div id="components-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
+      </div>
+
+      <!-- Current Season Island Map Preview (With Fullscreen trigger) -->
+      <div class="lg:col-span-5 glass-panel rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <h3 class="font-heading font-bold text-base sm:text-lg text-white flex items-center gap-2">
+            <i data-lucide="map" class="w-4 h-4 text-cyan-400"></i>
+            현재 시즌 섬 지도 & POI
+          </h3>
+          <button id="map-fullscreen-btn" class="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 bg-cyan-950/60 border border-cyan-500/30 px-2.5 py-1 rounded-lg transition-colors">
+            <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+            <span>크게 보기</span>
+          </button>
+        </div>
+        
+        <div id="map-container" class="map-container-group relative rounded-xl overflow-hidden border border-slate-800 bg-slate-950 min-h-[220px] flex items-center justify-center cursor-pointer group">
+          <img id="map-image" src="https://fortnite-api.com/images/map_en.png" alt="포트나이트 현재 시즌 맵" class="w-full h-auto max-h-[340px] object-contain rounded-lg transition-transform duration-300 group-hover:scale-105">
+          <div class="map-hover-overlay absolute inset-0 bg-black/50 opacity-0 flex flex-col items-center justify-center gap-2 backdrop-blur-[2px] transition-opacity">
+            <div class="p-3 rounded-full bg-blue-600 text-white shadow-lg">
+              <i data-lucide="zoom-in" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-semibold text-white">클릭하여 전체화면으로 확대</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 text-center">패치로 인해 신규 POI나 지형 변경이 발생하면 지도가 실시간 반영됩니다.</p>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- News Detail Modal Overlay -->
+  <div id="news-modal-overlay" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div id="news-modal-content" class="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+      <div class="relative h-64 sm:h-72 w-full bg-slate-950 shrink-0">
+        <img id="modal-image" src="" alt="" class="w-full h-full object-cover">
+        <button id="modal-close-btn" class="absolute top-4 right-4 p-2 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 sm:p-8 space-y-5 flex-1 flex flex-col justify-between">
+        <div class="space-y-3">
+          <h3 id="modal-title" class="font-heading font-extrabold text-xl sm:text-2xl text-white"></h3>
+          <p id="modal-body" class="text-sm sm:text-base text-slate-300 leading-relaxed whitespace-pre-line"></p>
+        </div>
+
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-between gap-3">
+          <span class="text-xs text-slate-400">포트나이트 공식 웹사이트 패치 피드</span>
+          <a id="modal-external-link" href="https://www.fortnite.com/news" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-blue-600/25 transition-all">
+            <span>공식 원문 사이트에서 자세히 보기</span>
+            <i data-lucide="external-link" class="w-4 h-4"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Map Lightbox Modal -->
+  <div id="map-modal-overlay" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-lg flex items-center justify-center p-2 sm:p-6 hidden">
+    <div class="relative max-w-5xl w-full max-h-[95vh] flex flex-col items-center justify-center">
+      <button id="map-modal-close-btn" class="absolute -top-12 right-0 sm:top-2 sm:right-2 z-10 p-2.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-slate-700 transition">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      <div class="rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 p-2 shadow-2xl flex items-center justify-center max-h-[90vh]">
+        <img id="map-modal-image" src="https://fortnite-api.com/images/map_en.png" alt="포트나이트 전체화면 맵" class="max-h-[85vh] w-auto object-contain rounded-xl">
+      </div>
+      <div class="mt-3 text-xs text-slate-400 flex items-center gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-cyan-400"></i>
+        <span>ESC 키 또는 바깥 영역을 클릭하면 닫힙니다.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/60 py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <span>데이터 출처: Epic Games Official Status API & Fortnite-API (실시간 자동 수집)</span>
+      </div>
+      <div>
+        <span>포트나이트(Fortnite)는 Epic Games, Inc.의 등록 상표입니다. 본 사이트는 실시간 업데이트 패치 정보 대시보드입니다.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts in Root (No Subfolders) -->
+  <script src="api.js?v=3.5.0"></script>
+  <script src="app.js?v=3.5.0"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+/* Custom Styles for Fortnite Status & Patch Tracker */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,700&family=Pretendard:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --fn-dark-bg: #0b0e14;
+  --fn-card-bg: #121824;
+  --fn-card-border: #1e293b;
+  --fn-blue: #0088ff;
+  --fn-yellow: #facc15;
+  --fn-green: #10b981;
+  --fn-red: #ef4444;
+  --fn-purple: #8b5cf6;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  background-color: var(--fn-dark-bg);
+  color: #f1f5f9;
+  overflow-x: hidden;
+}
+
+.font-heading {
+  font-family: 'Outfit', 'Chakra Petch', sans-serif;
+}
+
+.font-game {
+  font-family: 'Chakra Petch', 'Outfit', sans-serif;
+  letter-spacing: 0.05em;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0e14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Glassmorphism Cards */
+.glass-panel {
+  background: rgba(18, 24, 36, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-panel-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 136, 255, 0.45);
+  box-shadow: 0 12px 30px -10px rgba(0, 136, 255, 0.2);
+}
+
+/* Grid Background */
+.bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Map Viewer Hover effect */
+.map-hover-overlay {
+  transition: opacity 0.2s ease-in-out;
+}
+.map-container-group:hover .map-hover-overlay {
+  opacity: 1;
+}
