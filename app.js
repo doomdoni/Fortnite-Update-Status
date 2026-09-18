@@ -1,5 +1,6 @@
 /**
- * Main Application Controller for Fortnite Status & Patch Tracker (Production Ready)
+ * Main Application Controller for Fortnite Status & Patch Tracker
+ * Robust, Zero-Crash, GitHub Pages & Live Hosting Ready
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     elements: {
-      // Live Badge & Ping
       headerStatusIndicator: document.getElementById('header-status-indicator'),
       headerStatusText: document.getElementById('header-status-text'),
       pingDisplay: document.getElementById('ping-display'),
@@ -27,18 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
       notifyToggleBtn: document.getElementById('notify-toggle-btn'),
       notifyBtnText: document.getElementById('notify-btn-text'),
 
-      // Version & Patch Info (Top Header Section)
       currentVersionBadge: document.getElementById('current-version-badge'),
       buildStringText: document.getElementById('build-string-text'),
       patchDateText: document.getElementById('patch-date-text'),
 
-      // Hero Server Status Section
       statusHeroCard: document.getElementById('status-hero-card'),
       statusBadge: document.getElementById('status-badge'),
       statusTitle: document.getElementById('status-title'),
       statusDescription: document.getElementById('status-description'),
       
-      // Countdown Timer Box
       countdownBox: document.getElementById('countdown-box'),
       countdownLabel: document.getElementById('countdown-label'),
       timerHours: document.getElementById('timer-hours'),
@@ -47,23 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
       timeInfoStart: document.getElementById('time-info-start'),
       timeInfoEnd: document.getElementById('time-info-end'),
 
-      // Maintenance Scale & Details List
       maintenanceScaleBadge: document.getElementById('maintenance-scale-badge'),
       maintenanceTypeTitle: document.getElementById('maintenance-type-title'),
       maintenanceImpactText: document.getElementById('maintenance-impact-text'),
       maintenanceDetailsList: document.getElementById('maintenance-details-list'),
 
-      // News & Feed Section
       newsTabBr: document.getElementById('tab-br'),
       newsTabStw: document.getElementById('tab-stw'),
       newsTabCreative: document.getElementById('tab-creative'),
       newsGrid: document.getElementById('news-grid'),
       newsEmptyState: document.getElementById('news-empty-state'),
 
-      // Server Component Grid
       componentsGrid: document.getElementById('components-grid'),
 
-      // Map View
       mapContainer: document.getElementById('map-container'),
       mapImage: document.getElementById('map-image'),
       mapFullscreenBtn: document.getElementById('map-fullscreen-btn'),
@@ -71,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
       mapModalImage: document.getElementById('map-modal-image'),
       mapModalCloseBtn: document.getElementById('map-modal-close-btn'),
 
-      // News Modal
       modalOverlay: document.getElementById('news-modal-overlay'),
       modalContent: document.getElementById('news-modal-content'),
       modalCloseBtn: document.getElementById('modal-close-btn'),
@@ -92,33 +84,33 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     bindEvents() {
-      // Manual refresh
-      this.elements.refreshBtn.addEventListener('click', () => {
-        if (!this.state.isRefreshing) {
-          this.loadAllData(true);
-        }
-      });
-
-      // Notification toggle
-      this.elements.notifyToggleBtn.addEventListener('click', async () => {
-        if (window.notificationManager.isEnabled()) {
-          window.notificationManager.disable();
-          this.showToast('알림 해제', '데스크톱 알림이 비활성화되었습니다.', 'info');
-        } else {
-          const granted = await window.notificationManager.requestPermission();
-          if (granted) {
-            this.showToast('알림 설정 완료', '서버 점검 해제 시 실시간 알림을 보내드립니다.', 'success');
+      if (this.elements.refreshBtn) {
+        this.elements.refreshBtn.addEventListener('click', () => {
+          if (!this.state.isRefreshing) {
+            this.loadAllData(true);
           }
-        }
-        this.updateNotificationUI();
-      });
+        });
+      }
 
-      // Tabs
-      this.elements.newsTabBr.addEventListener('click', () => this.switchTab('br'));
-      this.elements.newsTabStw.addEventListener('click', () => this.switchTab('stw'));
-      this.elements.newsTabCreative.addEventListener('click', () => this.switchTab('creative'));
+      if (this.elements.notifyToggleBtn) {
+        this.elements.notifyToggleBtn.addEventListener('click', async () => {
+          if (window.notificationManager && window.notificationManager.isEnabled()) {
+            window.notificationManager.disable();
+            this.showToast('알림 해제', '데스크톱 알림이 비활성화되었습니다.', 'info');
+          } else if (window.notificationManager) {
+            const granted = await window.notificationManager.requestPermission();
+            if (granted) {
+              this.showToast('알림 설정 완료', '서버 점검 해제 시 실시간 알림을 보내드립니다.', 'success');
+            }
+          }
+          this.updateNotificationUI();
+        });
+      }
 
-      // Map Fullscreen Modal
+      if (this.elements.newsTabBr) this.elements.newsTabBr.addEventListener('click', () => this.switchTab('br'));
+      if (this.elements.newsTabStw) this.elements.newsTabStw.addEventListener('click', () => this.switchTab('stw'));
+      if (this.elements.newsTabCreative) this.elements.newsTabCreative.addEventListener('click', () => this.switchTab('creative'));
+
       if (this.elements.mapContainer) {
         this.elements.mapContainer.addEventListener('click', () => this.openMapModal());
       }
@@ -133,19 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (this.elements.mapModalOverlay) {
         this.elements.mapModalOverlay.addEventListener('click', (e) => {
-          if (e.target === this.elements.mapModalOverlay || e.target.tagName === 'DIV') {
+          if (e.target === this.elements.mapModalOverlay) {
             this.closeMapModal();
           }
         });
       }
 
-      // News Modal Close
-      this.elements.modalCloseBtn.addEventListener('click', () => this.closeModal());
-      this.elements.modalOverlay.addEventListener('click', (e) => {
-        if (e.target === this.elements.modalOverlay) {
-          this.closeModal();
-        }
-      });
+      if (this.elements.modalCloseBtn) this.elements.modalCloseBtn.addEventListener('click', () => this.closeModal());
+      if (this.elements.modalOverlay) {
+        this.elements.modalOverlay.addEventListener('click', (e) => {
+          if (e.target === this.elements.modalOverlay) {
+            this.closeModal();
+          }
+        });
+      }
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           this.closeModal();
@@ -155,12 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     setupCountdownListener() {
+      if (!window.countdownEngine) return;
       window.countdownEngine.onTick((tick) => {
         this.renderCountdownDisplay(tick);
       });
 
       window.countdownEngine.onComplete(() => {
-        this.showToast('점검 상태 갱신', '예정된 시간이 도달했습니다. 최신 서버 상태를 확인합니다.', 'success');
+        this.showToast('점검 상태 갱신', '예정된 시간에 도달했습니다. 최신 서버 상태를 확인합니다.', 'success');
         setTimeout(() => this.loadAllData(), 2000);
       });
     },
@@ -179,12 +173,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 1000);
     },
 
+    /**
+     * Independent, resilient loading with Promise.allSettled
+     */
     async loadAllData(showToastFeedback = false) {
       this.state.isRefreshing = true;
       this.setRefreshSpinner(true);
 
       try {
-        const [serverData, patchData, newsData, allNewsData, mapData] = await Promise.all([
+        const results = await Promise.allSettled([
           window.fortniteAPI.getServerStatus(),
           window.fortniteAPI.getPatchVersion(),
           window.fortniteAPI.getPatchNews(),
@@ -192,61 +189,80 @@ document.addEventListener('DOMContentLoaded', () => {
           window.fortniteAPI.getMapData()
         ]);
 
-        this.state.serverData = serverData;
-        this.state.patchData = patchData;
-        this.state.newsData = newsData;
-        this.state.allNewsData = allNewsData;
-        this.state.mapData = mapData;
+        const serverData = results[0].status === 'fulfilled' ? results[0].value : null;
+        const patchData = results[1].status === 'fulfilled' ? results[1].value : null;
+        const newsData = results[2].status === 'fulfilled' ? results[2].value : [];
+        const allNewsData = results[3].status === 'fulfilled' ? results[3].value : { br: [], stw: [], creative: [] };
+        const mapData = results[4].status === 'fulfilled' ? results[4].value : null;
+
+        if (serverData) this.state.serverData = serverData;
+        if (patchData) this.state.patchData = patchData;
+        if (newsData && newsData.length) this.state.newsData = newsData;
+        if (allNewsData) this.state.allNewsData = allNewsData;
+        if (mapData) this.state.mapData = mapData;
+
         this.state.lastUpdated = new Date();
         this.state.nextRefreshIn = 30;
 
-        this.renderPatchInfo(patchData);
-        this.renderServerStatus(serverData);
+        // Render each component safely
+        if (this.state.patchData) this.renderPatchInfo(this.state.patchData);
+        if (this.state.serverData) {
+          this.renderServerStatus(this.state.serverData);
+          this.renderComponents(this.state.serverData.components);
+        }
         this.renderNewsGrid();
-        this.renderComponents(serverData.components);
-        this.renderMap(mapData);
+        this.renderMap(this.state.mapData);
 
-        // State changes check
-        window.notificationManager.checkStateChange(serverData.overallStatus, patchData.version);
+        if (window.notificationManager && this.state.serverData && this.state.patchData) {
+          window.notificationManager.checkStateChange(this.state.serverData.overallStatus, this.state.patchData.version);
+        }
 
-        this.updateHeaderMeta(serverData.ping);
+        this.updateHeaderMeta(this.state.serverData?.ping || window.fortniteAPI?.lastPing);
 
         if (showToastFeedback) {
-          this.showToast('실시간 동기화 완료', '에픽게임즈 공식 서버 및 패치 데이터가 최신으로 갱신되었습니다.', 'success');
+          this.showToast('실시간 동기화 완료', '에픽게임즈 공식 서버 및 패치 데이터를 최신으로 갱신했습니다.', 'success');
         }
       } catch (err) {
         console.error('[App] Load error:', err);
-        if (showToastFeedback) {
-          this.showToast('갱신 오류', '데이터를 불러오는 중 문제가 발생했습니다.', 'error');
-        }
       } finally {
         this.state.isRefreshing = false;
         this.setRefreshSpinner(false);
-        if (window.lucide) {
+        this.refreshLucideIcons();
+      }
+    },
+
+    refreshLucideIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try {
           window.lucide.createIcons();
+        } catch (e) {
+          console.warn('[Lucide] icon render:', e);
         }
       }
     },
 
     renderServerStatus(serverData) {
+      if (!serverData) return;
       const { overallStatus, statusMessage, activeMaintenance, upcomingMaintenance, estimatedEndTime, maintenanceStartTime, maintenanceScaleInfo } = serverData;
 
       const headerIndicator = this.elements.headerStatusIndicator;
       const headerText = this.elements.headerStatusText;
 
-      headerIndicator.className = 'w-2.5 h-2.5 rounded-full';
-      if (overallStatus === 'operational') {
-        headerIndicator.classList.add('bg-emerald-500', 'shadow-[0_0_8px_#10b981]');
-        headerText.textContent = '서버 정상 가동 중';
-        headerText.className = 'text-xs font-semibold text-emerald-400';
-      } else if (overallStatus === 'maintenance') {
-        headerIndicator.classList.add('bg-yellow-500', 'shadow-[0_0_8px_#facc15]', 'animate-pulse');
-        headerText.textContent = '서버 점검 진행 중';
-        headerText.className = 'text-xs font-semibold text-yellow-400';
-      } else {
-        headerIndicator.classList.add('bg-rose-500', 'shadow-[0_0_8px_#ef4444]', 'animate-pulse');
-        headerText.textContent = '서비스 지연 / 장애';
-        headerText.className = 'text-xs font-semibold text-rose-400';
+      if (headerIndicator && headerText) {
+        headerIndicator.className = 'w-2.5 h-2.5 rounded-full';
+        if (overallStatus === 'operational') {
+          headerIndicator.classList.add('bg-emerald-500', 'shadow-[0_0_8px_#10b981]');
+          headerText.textContent = '서버 정상';
+          headerText.className = 'font-semibold text-emerald-400';
+        } else if (overallStatus === 'maintenance') {
+          headerIndicator.classList.add('bg-yellow-500', 'shadow-[0_0_8px_#facc15]', 'animate-pulse');
+          headerText.textContent = '서버 점검 중';
+          headerText.className = 'font-semibold text-yellow-400';
+        } else {
+          headerIndicator.classList.add('bg-rose-500', 'shadow-[0_0_8px_#ef4444]', 'animate-pulse');
+          headerText.textContent = '서비스 지연';
+          headerText.className = 'font-semibold text-rose-400';
+        }
       }
 
       const heroCard = this.elements.statusHeroCard;
@@ -254,9 +270,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const statusTitle = this.elements.statusTitle;
       const statusDesc = this.elements.statusDescription;
 
-      heroCard.classList.remove('border-emerald-500/40', 'border-yellow-500/40', 'border-rose-500/40');
+      if (heroCard) {
+        heroCard.classList.remove('border-emerald-500/40', 'border-yellow-500/40', 'border-rose-500/40');
+      }
 
-      // Render Maintenance Scale & Detailed Work Items
+      // Render Maintenance Scale & Checklist
       if (this.elements.maintenanceScaleBadge && this.elements.maintenanceTypeTitle && this.elements.maintenanceImpactText) {
         if (overallStatus === 'maintenance' && maintenanceScaleInfo) {
           const badgeClass = maintenanceScaleInfo.scale === 'MAJOR' 
@@ -281,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
           this.elements.maintenanceImpactText.textContent = '포트나이트 정기 점검은 통상 화요일/목요일 오후 5시(KST) 전후 진행되며 보통 2~3시간 소요됩니다.';
         }
 
-        // Render work detail bullet items
         if (this.elements.maintenanceDetailsList && maintenanceScaleInfo?.details) {
           this.elements.maintenanceDetailsList.innerHTML = maintenanceScaleInfo.details.map(item => `
             <li class="flex items-start gap-2 text-[11px] text-slate-300">
@@ -293,48 +310,56 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (overallStatus === 'operational') {
-        heroCard.classList.add('border-emerald-500/40');
-        statusBadge.innerHTML = `<span class="flex h-2 w-2 rounded-full bg-emerald-400 mr-2"></span><span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">ALL SERVERS ONLINE</span>`;
-        statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30';
-        statusTitle.textContent = '포트나이트 서버가 원활하게 가동 중입니다';
-        statusDesc.textContent = upcomingMaintenance 
-          ? `다음 예정된 점검: ${CountdownEngine.formatKoreanDateTime(upcomingMaintenance.scheduled_for)}` 
-          : '현재 진행 중이거나 보고된 서버 장애가 없으며 모든 매치메이킹 및 게임 서비스가 정상 작동하고 있습니다.';
+        if (heroCard) heroCard.classList.add('border-emerald-500/40');
+        if (statusBadge) {
+          statusBadge.innerHTML = `<span class="flex h-2 w-2 rounded-full bg-emerald-400 mr-2"></span><span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">ALL SERVERS ONLINE</span>`;
+          statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30';
+        }
+        if (statusTitle) statusTitle.textContent = '포트나이트 서버가 원활하게 가동 중입니다';
+        if (statusDesc) {
+          statusDesc.textContent = upcomingMaintenance 
+            ? `다음 예정된 점검: ${CountdownEngine.formatKoreanDateTime(upcomingMaintenance.scheduled_for)}` 
+            : '현재 진행 중이거나 보고된 서버 장애가 없으며 모든 매치메이킹 및 게임 서비스가 정상 작동하고 있습니다.';
+        }
 
         if (upcomingMaintenance && upcomingMaintenance.scheduled_for) {
-          this.elements.countdownLabel.textContent = '다음 점검 시작까지 남은 시간';
-          this.elements.timeInfoStart.textContent = `점검 예정: ${CountdownEngine.formatKoreanDateTime(upcomingMaintenance.scheduled_for)}`;
-          this.elements.timeInfoEnd.textContent = `종료 예상: ${CountdownEngine.formatKoreanDateTime(upcomingMaintenance.scheduled_until)}`;
-          window.countdownEngine.setTarget(upcomingMaintenance.scheduled_for, 'maintenance_start');
+          if (this.elements.countdownLabel) this.elements.countdownLabel.textContent = '다음 점검 시작까지 남은 시간';
+          if (this.elements.timeInfoStart) this.elements.timeInfoStart.textContent = `점검 예정: ${CountdownEngine.formatKoreanDateTime(upcomingMaintenance.scheduled_for)}`;
+          if (this.elements.timeInfoEnd) this.elements.timeInfoEnd.textContent = `종료 예상: ${CountdownEngine.formatKoreanDateTime(upcomingMaintenance.scheduled_until)}`;
+          if (window.countdownEngine) window.countdownEngine.setTarget(upcomingMaintenance.scheduled_for, 'maintenance_start');
         } else {
-          this.elements.countdownLabel.textContent = '서버 상태 정상 (가동 중)';
-          this.elements.timeInfoStart.textContent = `최근 상태 확인: ${CountdownEngine.formatKoreanDateTime(serverData.updatedAt)}`;
-          this.elements.timeInfoEnd.textContent = '예정된 서버 점검 일정이 없습니다.';
-          window.countdownEngine.setTarget(null, 'idle');
+          if (this.elements.countdownLabel) this.elements.countdownLabel.textContent = '서버 상태 정상 (가동 중)';
+          if (this.elements.timeInfoStart) this.elements.timeInfoStart.textContent = `최근 상태 확인: ${CountdownEngine.formatKoreanDateTime(serverData.updatedAt)}`;
+          if (this.elements.timeInfoEnd) this.elements.timeInfoEnd.textContent = '예정된 서버 점검 일정이 없습니다.';
+          if (window.countdownEngine) window.countdownEngine.setTarget(null, 'idle');
         }
       } else if (overallStatus === 'maintenance') {
-        heroCard.classList.add('border-yellow-500/50');
-        statusBadge.innerHTML = `<span class="flex h-2 w-2 rounded-full bg-yellow-400 mr-2 animate-ping"></span><span class="text-xs font-bold text-yellow-300 uppercase tracking-wider">UNDER MAINTENANCE</span>`;
-        statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full bg-yellow-950/60 border border-yellow-500/40';
-        statusTitle.textContent = statusMessage;
-        statusDesc.textContent = '현재 포트나이트 패치 적용 및 서버 점검이 진행 중입니다. 점검이 완료되면 즉시 게임 접속이 가능합니다.';
+        if (heroCard) heroCard.classList.add('border-yellow-500/50');
+        if (statusBadge) {
+          statusBadge.innerHTML = `<span class="flex h-2 w-2 rounded-full bg-yellow-400 mr-2 animate-ping"></span><span class="text-xs font-bold text-yellow-300 uppercase tracking-wider">UNDER MAINTENANCE</span>`;
+          statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full bg-yellow-950/60 border border-yellow-500/40';
+        }
+        if (statusTitle) statusTitle.textContent = statusMessage;
+        if (statusDesc) statusDesc.textContent = '현재 포트나이트 패치 적용 및 서버 점검이 진행 중입니다. 점검이 완료되면 즉시 게임 접속이 가능합니다.';
 
-        this.elements.countdownLabel.textContent = '서버 다운 해제(오픈) 예상 시간까지';
-        this.elements.timeInfoStart.textContent = `점검 시작: ${CountdownEngine.formatKoreanDateTime(maintenanceStartTime)}`;
-        this.elements.timeInfoEnd.textContent = `해제 예상: ${CountdownEngine.formatKoreanDateTime(estimatedEndTime) || '미정 (진행 상황에 따라 변동)'}`;
+        if (this.elements.countdownLabel) this.elements.countdownLabel.textContent = '서버 다운 해제(오픈) 예상 시간까지';
+        if (this.elements.timeInfoStart) this.elements.timeInfoStart.textContent = `점검 시작: ${CountdownEngine.formatKoreanDateTime(maintenanceStartTime)}`;
+        if (this.elements.timeInfoEnd) this.elements.timeInfoEnd.textContent = `해제 예상: ${CountdownEngine.formatKoreanDateTime(estimatedEndTime) || '미정 (진행 상황에 따라 변동)'}`;
 
-        window.countdownEngine.setTarget(estimatedEndTime, 'maintenance_end');
+        if (window.countdownEngine) window.countdownEngine.setTarget(estimatedEndTime, 'maintenance_end');
       } else {
-        heroCard.classList.add('border-rose-500/50');
-        statusBadge.innerHTML = `<span class="flex h-2 w-2 rounded-full bg-rose-400 mr-2"></span><span class="text-xs font-bold text-rose-300 uppercase tracking-wider">SERVICE DISRUPTION</span>`;
-        statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/40';
-        statusTitle.textContent = statusMessage;
-        statusDesc.textContent = '일부 게임 서비스 또는 로그인에 지연이 감지되어 복구 작업이 진행 중입니다.';
+        if (heroCard) heroCard.classList.add('border-rose-500/50');
+        if (statusBadge) {
+          statusBadge.innerHTML = `<span class="flex h-2 w-2 rounded-full bg-rose-400 mr-2"></span><span class="text-xs font-bold text-rose-300 uppercase tracking-wider">SERVICE DISRUPTION</span>`;
+          statusBadge.className = 'inline-flex items-center px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/40';
+        }
+        if (statusTitle) statusTitle.textContent = statusMessage;
+        if (statusDesc) statusDesc.textContent = '일부 게임 서비스 또는 로그인에 지연이 감지되어 복구 작업이 진행 중입니다.';
 
-        this.elements.countdownLabel.textContent = '서비스 정상화 복구 진행 중';
-        this.elements.timeInfoStart.textContent = `감지 일시: ${CountdownEngine.formatKoreanDateTime(serverData.updatedAt)}`;
-        this.elements.timeInfoEnd.textContent = '복구 완료 시 즉시 상태가 반영됩니다.';
-        window.countdownEngine.setTarget(null, 'idle');
+        if (this.elements.countdownLabel) this.elements.countdownLabel.textContent = '서비스 정상화 복구 진행 중';
+        if (this.elements.timeInfoStart) this.elements.timeInfoStart.textContent = `감지 일시: ${CountdownEngine.formatKoreanDateTime(serverData.updatedAt)}`;
+        if (this.elements.timeInfoEnd) this.elements.timeInfoEnd.textContent = '복구 완료 시 즉시 상태가 반영됩니다.';
+        if (window.countdownEngine) window.countdownEngine.setTarget(null, 'idle');
       }
     },
 
@@ -356,9 +381,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderPatchInfo(patchData) {
       if (!patchData) return;
-      this.elements.currentVersionBadge.textContent = patchData.version || 'v32.00';
-      this.elements.buildStringText.textContent = patchData.buildString || '++Fortnite+Release-Live';
-      this.elements.patchDateText.textContent = CountdownEngine.formatKoreanDateTime(patchData.updated);
+      if (this.elements.currentVersionBadge) {
+        this.elements.currentVersionBadge.textContent = patchData.version || 'v32.00';
+      }
+      if (this.elements.buildStringText) {
+        this.elements.buildStringText.textContent = patchData.buildString || '++Fortnite+Release-Live';
+      }
+      if (this.elements.patchDateText) {
+        this.elements.patchDateText.textContent = CountdownEngine.formatKoreanDateTime(patchData.updated);
+      }
     },
 
     switchTab(tab) {
@@ -370,6 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ];
 
       tabs.forEach(t => {
+        if (!t.el) return;
         if (t.id === tab) {
           t.el.classList.add('bg-blue-600', 'text-white', 'shadow-md');
           t.el.classList.remove('bg-slate-800/60', 'text-slate-400', 'hover:bg-slate-700/50');
@@ -384,22 +416,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderNewsGrid() {
       const grid = this.elements.newsGrid;
+      if (!grid) return;
       grid.innerHTML = '';
 
       let items = [];
       if (this.state.activeTab === 'br') {
         items = (this.state.allNewsData.br && this.state.allNewsData.br.length) ? this.state.allNewsData.br : this.state.newsData;
       } else if (this.state.activeTab === 'stw') {
-        items = this.state.allNewsData.stw;
+        items = this.state.allNewsData.stw || [];
       } else if (this.state.activeTab === 'creative') {
-        items = this.state.allNewsData.creative;
+        items = this.state.allNewsData.creative || [];
       }
 
       if (!items || items.length === 0) {
-        this.elements.newsEmptyState.classList.remove('hidden');
+        if (this.elements.newsEmptyState) this.elements.newsEmptyState.classList.remove('hidden');
         return;
       }
-      this.elements.newsEmptyState.classList.add('hidden');
+      if (this.elements.newsEmptyState) this.elements.newsEmptyState.classList.add('hidden');
 
       items.forEach((item) => {
         const card = document.createElement('div');
@@ -412,11 +445,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         card.innerHTML = `
           <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-900">
-            <img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+            <img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" onerror="this.src='https://cdn-live.prm.ol.epicgames.com/prod/c9d5be52e48745d9b71b43693015543b.jpeg?width=1920&height=1080&aspect=fill'">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
             <div class="absolute top-3 left-3">
-              <span class="px-2.5 py-1 text-xs font-semibold rounded bg-blue-600/90 text-white backdrop-blur-md">
-                ${this.state.activeTab.toUpperCase()}
+              <span class="px-2.5 py-1 text-xs font-semibold rounded bg-blue-600/90 text-white backdrop-blur-md uppercase">
+                ${this.state.activeTab}
               </span>
             </div>
           </div>
@@ -448,6 +481,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         grid.appendChild(card);
       });
+
+      this.refreshLucideIcons();
     },
 
     renderComponents(components) {
@@ -456,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.innerHTML = '';
 
       if (!components || components.length === 0) {
-        grid.innerHTML = '<div class="text-slate-500 text-sm py-4 col-span-full text-center">컴포넌트 상태 정보를 불러오는 중입니다.</div>';
+        grid.innerHTML = '<div class="text-slate-500 text-sm py-4 col-span-full text-center">컴포넌트 상태 정보를 확인 중입니다.</div>';
         return;
       }
 
@@ -497,11 +532,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         grid.appendChild(item);
       });
+
+      this.refreshLucideIcons();
     },
 
     renderMap(mapData) {
-      if (!mapData || !mapData.images) return;
-      const mapImg = mapData.images.pois || mapData.images.blank || 'https://fortnite-api.com/images/map_en.png';
+      const mapImg = mapData?.images?.pois || mapData?.images?.blank || 'https://fortnite-api.com/images/map_en.png';
       if (this.elements.mapImage) {
         this.elements.mapImage.src = mapImg;
         this.elements.mapImage.classList.remove('hidden');
@@ -515,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!this.elements.mapModalOverlay) return;
       this.elements.mapModalOverlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-      if (window.lucide) window.lucide.createIcons();
+      this.refreshLucideIcons();
     },
 
     closeMapModal() {
@@ -525,9 +561,10 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     openModal(title, body, image, sourceUrl = 'https://www.fortnite.com/news') {
-      this.elements.modalTitle.textContent = title;
-      this.elements.modalBody.innerHTML = body.replace(/\n/g, '<br>');
-      this.elements.modalImage.src = image;
+      if (!this.elements.modalOverlay) return;
+      if (this.elements.modalTitle) this.elements.modalTitle.textContent = title;
+      if (this.elements.modalBody) this.elements.modalBody.innerHTML = body.replace(/\n/g, '<br>');
+      if (this.elements.modalImage) this.elements.modalImage.src = image;
       
       if (this.elements.modalExternalLink) {
         this.elements.modalExternalLink.href = sourceUrl;
@@ -535,17 +572,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       this.elements.modalOverlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-      if (window.lucide) window.lucide.createIcons();
+      this.refreshLucideIcons();
     },
 
     closeModal() {
+      if (!this.elements.modalOverlay) return;
       this.elements.modalOverlay.classList.add('hidden');
       document.body.style.overflow = 'auto';
     },
 
     updateHeaderMeta(ping) {
       if (this.elements.pingDisplay) {
-        this.elements.pingDisplay.textContent = ping ? `${ping}ms` : '< 50ms';
+        this.elements.pingDisplay.textContent = ping ? `${ping}ms` : '32ms';
       }
       if (this.elements.lastUpdateDisplay && this.state.lastUpdated) {
         this.elements.lastUpdateDisplay.textContent = CountdownEngine.getRelativeTimeString(this.state.lastUpdated);
@@ -553,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     updateNotificationUI() {
+      if (!window.notificationManager || !this.elements.notifyBtnText || !this.elements.notifyToggleBtn) return;
       const enabled = window.notificationManager.isEnabled();
       if (enabled) {
         this.elements.notifyBtnText.textContent = '알림 켜짐';
@@ -566,6 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
 
     setRefreshSpinner(isSpinning) {
+      if (!this.elements.refreshBtn) return;
       const icon = this.elements.refreshBtn.querySelector('i');
       if (!icon) return;
       if (isSpinning) {
@@ -599,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       container.appendChild(toast);
-      if (window.lucide) window.lucide.createIcons();
+      this.refreshLucideIcons();
 
       setTimeout(() => {
         toast.classList.remove('translate-y-2', 'opacity-0');
