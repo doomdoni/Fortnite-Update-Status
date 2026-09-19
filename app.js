@@ -295,7 +295,7 @@ class AppController {
       const title = item.title || item.tabTitle || '포트나이트 업데이트 뉴스';
       const body = item.body || item.message || '상세 내용을 확인하려면 클릭하세요.';
       const imageUrl = item.tileImage || item.image || 'https://cdn-live.prm.ol.epicgames.com/prod/5b1d76d3450c47639eaf560ca950014c.jpeg?width=720&height=400&aspect=fill';
-      const sourceUrl = item.sourceUrl || 'https://www.fortnite.com/news';
+      const sourceUrl = item.sourceUrl || (window.resolveArticleUrl ? window.resolveArticleUrl(title, body, this.activeTab) : 'https://www.fortnite.com/news');
 
       card.innerHTML = `
         <div class="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-900">
@@ -317,8 +317,8 @@ class AppController {
               자세히 보기
               <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
             </span>
-            <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="inline-flex items-center gap-1 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 px-2 py-1 rounded transition-colors">
-              <span>공식 출처</span>
+            <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="inline-flex items-center gap-1 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 px-2 py-1 rounded transition-colors" title="이 소식의 공식 원문 페이지로 이동">
+              <span>해당 소식 원문</span>
               <i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i>
             </a>
           </div>
@@ -393,17 +393,19 @@ class AppController {
     this.renderNews(this.allNews[tab] || []);
   }
 
-  openModal(title, body, image, sourceUrl = 'https://www.fortnite.com/news') {
+  openModal(title, body, image, sourceUrl = '') {
     const overlay = document.getElementById('news-modal-overlay');
     const mt = document.getElementById('modal-title');
     const mb = document.getElementById('modal-body');
     const mi = document.getElementById('modal-image');
     const ml = document.getElementById('modal-external-link');
 
+    const exactUrl = sourceUrl || (window.resolveArticleUrl ? window.resolveArticleUrl(title, body, this.activeTab) : 'https://www.fortnite.com/news');
+
     if (mt) mt.textContent = title;
     if (mb) mb.innerHTML = body.replace(/\n/g, '<br>');
     if (mi) mi.src = image;
-    if (ml) ml.href = sourceUrl;
+    if (ml) ml.href = exactUrl;
 
     if (overlay) overlay.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
